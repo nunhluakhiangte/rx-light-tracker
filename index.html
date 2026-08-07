@@ -42,7 +42,7 @@
 <body>
 <div class="phone"><div class="notch"></div><div class="screen">
 <div class="topbar"><strong id="clock">11:43</strong><span aria-hidden="true">▮▮▮ 🔋</span></div>
-<div class="title"><h1>RX LIGHT TRACKER <small id="app-version" style="font-size:9px;font-weight:400;color:var(--muted);vertical-align:middle">v1.3.1</small></h1><span class="date" id="header-date"></span></div>
+<div class="title"><h1>RX LIGHT TRACKER <small id="app-version" style="font-size:9px;font-weight:400;color:var(--muted);vertical-align:middle">v1.3.2</small></h1><span class="date" id="header-date"></span></div>
 <div class="toolbar"><div class="date-nav"><button type="button" id="prev-day" aria-label="Previous day">‹</button><strong id="selected-date"></strong><button type="button" id="next-day" aria-label="Next day">›</button><button type="button" id="today-button">Today</button></div><div><button type="button" id="drive-button" aria-label="Connect Google Drive sync">Connect Drive</button><button type="button" id="theme-button" aria-label="Toggle theme">Theme</button><button type="button" id="settings-button">Settings</button></div></div>
 <section id="time-view"><main>
 <div class="eff"><div><div class="label">Efficiency</div><div class="hint">unclamped — can pass 100%</div></div><strong id="efficiency" aria-live="polite">100%</strong></div>
@@ -72,7 +72,7 @@ const defaultWeights={Work:1,Sleep:1,Render:.1,Learning:.5,Badminton:.5,Necessit
 const order=['Sleep','Necessity','Plan','Meditate','Work','Learning','Badminton','Misc','Render'];
 const excessNames=['Sleep','Badminton','Necessity'];
 const $=s=>document.querySelector(s);const todayISO=()=>new Date().toISOString().slice(0,10);const clone=o=>JSON.parse(JSON.stringify(o));
-let store=loadStore();let selectedDate=store.selectedDate||todayISO();let activeView='time';let calendarCursor=todayISO();
+let store=loadStore();let selectedDate=todayISO();let activeView='time';let calendarCursor=todayISO();
 (function pruneFutureEntries(){
   const todayStr=todayISO();let changed=false;
   Object.keys(store.entries).forEach(d=>{if(d>todayStr){delete store.entries[d];changed=true}});
