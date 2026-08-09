@@ -59,7 +59,7 @@
 <body>
 <div class="phone"><div class="notch"></div><div class="screen">
 <div class="topbar"><strong id="clock">11:43</strong><span aria-hidden="true">▮▮▮ 🔋</span></div>
-<div class="title"><h1>RX LIGHT TRACKER <small id="app-version" style="font-size:9px;font-weight:400;color:var(--muted);vertical-align:middle">v1.10.4</small></h1><span class="date" id="header-date"></span></div>
+<div class="title"><h1>RX LIGHT TRACKER <small id="app-version" style="font-size:9px;font-weight:400;color:var(--muted);vertical-align:middle">v1.10.5</small></h1><span class="date" id="header-date"></span></div>
 <div class="toolbar"><div class="date-nav"><button type="button" id="prev-day" class="icon-btn" aria-label="Previous day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><strong id="selected-date"></strong><button type="button" id="next-day" class="icon-btn" aria-label="Next day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" id="today-button" class="icon-label-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg><span>Today</span></button></div><div><button type="button" id="drive-button" class="icon-label-btn" aria-label="Connect Google Drive sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17.3 8.02 4.5 4.5 0 0 1 16.5 18H7z"/></svg><span>Connect Drive</span></button><button type="button" id="theme-button" class="icon-label-btn" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg><span>Theme</span></button><button type="button" id="settings-button" class="icon-label-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.37a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.63 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.63 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.63a1.7 1.7 0 0 0 1.04-1.56V3a2 2 0 0 1 4 0v.09A1.7 1.7 0 0 0 15 4.63a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.37 9a1.7 1.7 0 0 0 1.56 1.04H21a2 2 0 0 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/></svg><span>Settings</span></button></div></div>
 <section id="time-view"><main>
 <div id="locked-banner" class="sustainability hidden">🔒 This day is locked and can no longer be edited.</div>
@@ -283,7 +283,8 @@ function closeSettings(){ $('#settings-modal').classList.add('hidden') }
 function exportData(){const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='split-data.json';a.click();URL.revokeObjectURL(a.href)}
 const DRIVE_TOKEN_KEY='rx-drive-token';
 function saveDriveToken(token,expiresInSec){try{localStorage.setItem(DRIVE_TOKEN_KEY,JSON.stringify({token,expiresAt:Date.now()+((expiresInSec||3300)*1000)}))}catch(e){}}
-function loadDriveToken(){try{const raw=localStorage.getItem(DRIVE_TOKEN_KEY);if(!raw)return null;const data=JSON.parse(raw);if(!data.token||!data.expiresAt||data.expiresAt<=Date.now()+30000)return null;return data.token}catch(e){return null}}
+function loadDriveToken(){const raw=loadDriveTokenRaw();return raw?raw.token:null}
+function loadDriveTokenRaw(){try{const raw=localStorage.getItem(DRIVE_TOKEN_KEY);if(!raw)return null;const data=JSON.parse(raw);if(!data.token||!data.expiresAt||data.expiresAt<=Date.now()+30000)return null;return data}catch(e){return null}}
 function clearDriveToken(){try{localStorage.removeItem(DRIVE_TOKEN_KEY)}catch(e){}}
 function driveConfigured(){return GOOGLE_CLIENT_ID.indexOf('PASTE_YOUR')===-1}
 function setDriveStatus(text){const el=$('#save-status');if(el){el.textContent=text;el.classList.add('status-updated');setTimeout(()=>el.classList.remove('status-updated'),2000)}}
@@ -304,15 +305,32 @@ async function refreshFromDrive(){
   }catch(err){setDriveStatus('Refresh failed — check connection')}
 }
 function updateDriveButton(){const btn=$('#drive-button');if(!btn)return;btn.textContent=driveConnected?'Drive: Connected':'Connect Drive'}
+const DRIVE_EVER_CONNECTED_KEY='rx-drive-ever-connected';
+let driveRefreshTimer=null;
+function scheduleDriveRefresh(expiresInSec){
+  if(driveRefreshTimer)clearTimeout(driveRefreshTimer);
+  const ms=Math.max(60000,((expiresInSec||3300)-300)*1000); // renew 5 min before it expires
+  driveRefreshTimer=setTimeout(()=>{if(driveTokenClient)driveTokenClient.requestAccessToken({prompt:''})},ms);
+}
 function initDrive(){
   if(!driveConfigured()||typeof google==='undefined')return;
   driveTokenClient=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:DRIVE_SCOPE,callback:async resp=>{
-    if(resp&&resp.access_token){driveToken=resp.access_token;driveConnected=true;saveDriveToken(resp.access_token,resp.expires_in);updateDriveButton();await driveSyncOnConnect()}
+    if(resp&&resp.access_token){driveToken=resp.access_token;driveConnected=true;saveDriveToken(resp.access_token,resp.expires_in);try{localStorage.setItem(DRIVE_EVER_CONNECTED_KEY,'1')}catch(e){}scheduleDriveRefresh(resp.expires_in);updateDriveButton();await driveSyncOnConnect()}
   }});
-  const cached=loadDriveToken();
-  if(cached){driveToken=cached;driveConnected=true;updateDriveButton();driveSyncOnConnect()}
-  // No automatic requestAccessToken() here — without a real click, browsers block the popup it needs,
-  // so a cached token (above) or a manual Connect click (below) are the only ways in.
+  const cached=loadDriveTokenRaw();
+  if(cached&&cached.token&&cached.expiresAt>Date.now()+30000){
+    driveToken=cached.token;driveConnected=true;updateDriveButton();
+    scheduleDriveRefresh(Math.floor((cached.expiresAt-Date.now())/1000));
+    driveSyncOnConnect();
+  }else{
+    // No live cached token, but if this browser has connected before, try one silent
+    // (no-popup) renewal before falling back to requiring a manual "Connect Drive" click.
+    // This is what keeps a reload from demanding a fresh click every time the ~1hr Google
+    // token expires — it can't be avoided entirely without a backend (see connectDrive note).
+    try{
+      if(localStorage.getItem(DRIVE_EVER_CONNECTED_KEY))driveTokenClient.requestAccessToken({prompt:''});
+    }catch(e){}
+  }
 }
 function connectDrive(){
   if(!driveConfigured()){alert('Google Drive isn\'t set up yet — a Client ID needs to be added to this file first.');return}
